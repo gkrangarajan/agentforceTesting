@@ -1,0 +1,92 @@
+<!--
+Account Create Form LWC
+Uses LDS lightning-record-edit-form to create Account with Name, Email__c, and Billing Address.
+-->
+<template>
+  <section class="slds-card slds-p-around_medium">
+    <div class="slds-text-heading_medium slds-m-bottom_medium">Create Account</div>
+
+    <lightning-record-edit-form
+      object-api-name="Account"
+      onsuccess={handleSuccess}
+      onerror={handleError}
+      onsubmit={handleSubmit}
+    >
+      <lightning-messages></lightning-messages>
+
+      <div class="slds-grid slds-wrap slds-gutters">
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+          <div class="slds-form-element slds-m-bottom_medium">
+            <label class="slds-form-element__label" for="nameField">Name</label>
+            <lightning-input-field field-name="Name" data-field="Name" class="full-width"></lightning-input-field>
+          </div>
+        </div>
+
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+          <div class="slds-form-element slds-m-bottom_medium">
+            <label class="slds-form-element__label" for="emailField">Email</label>
+            <!-- Email is a custom field on Account, default API name Email__c; configurable via @api emailField -->
+            <template if:true={emailFieldIsStandard}>
+              <lightning-input-field field-name="Email__c" data-field="Email__c" class="full-width"></lightning-input-field>
+            </template>
+            <template if:false={emailFieldIsStandard}>
+              <!-- fallback dynamic input for other API names -->
+              <lightning-input type="email" value={emailValue} onchange={handleEmailChange} class="full-width"></lightning-input>
+              <div class="slds-text-color_weak slds-text-body_small slds-m-top_x-small">
+                Saving into field: {emailField}
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <div class="slds-m-vertical_medium">
+        <div class="slds-form-element">
+          <label class="slds-form-element__label">Billing Address</label>
+          <lightning-input-address
+            address-label=""
+            street-label="Street"
+            city-label="City"
+            country-label="Country"
+            province-label="State/Province"
+            postal-code-label="Postal Code"
+            street={billingStreet}
+            city={billingCity}
+            province={billingState}
+            postal-code={billingPostal}
+            country={billingCountry}
+            onchange={handleAddressChange}
+          >
+          </lightning-input-address>
+        </div>
+      </div>
+
+      <!-- Hidden binding fields are not required because we inject via handleSubmit -->
+      <div class="slds-m-top_medium slds-grid slds-gutters">
+        <div class="slds-col slds-grow-none">
+          <lightning-button
+            variant="neutral"
+            label="Reset"
+            onclick={handleReset}
+            disabled={isSubmitting}
+          ></lightning-button>
+        </div>
+        <div class="slds-col slds-text-align_right slds-grow">
+          <lightning-button
+            variant="brand"
+            type="submit"
+            label="Create Account"
+            class="slds-m-left_small"
+            disabled={isSubmitting}
+          ></lightning-button>
+        </div>
+      </div>
+    </lightning-record-edit-form>
+
+    <template if:true={isSubmitting}>
+      <div class="slds-m-top_medium slds-align_absolute-center">
+        <lightning-spinner size="small" alternative-text="Creating Account"></lightning-spinner>
+      </div>
+    </template>
+  </section>
+</template>
